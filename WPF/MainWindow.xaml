@@ -3,11 +3,21 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WPF"
+        xmlns:local="clr-namespace:Lab"
+        
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" WindowStyle="SingleBorderWindow">
-    <Grid>
-        <Button Margin="286,144,285,144">KNOPKA</Button>
-        <TextBox Margin="200,308,199,21"/>
+        Title="MainWindow" Height="450" Width="700" WindowStyle="SingleBorderWindow">
+    <Grid ShowGridLines="true">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300 px">
+                <!--<Button Margin="286,144,285,144" />-->
+                <!--<TextBox Margin="200,308,199,21"/>-->
+            </ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+            <Button Grid.Column="0" Height="60" Width="auto" VerticalAlignment="Top" Margin="25,25,25,0" Content="Создать MainCollection"/>
+            <Button Grid.Column="0" Height="60" Width="auto" VerticalAlignment="Top" Margin="25,25,25,0" Content="Удалить MainCollection"/>
+        </StackPanel>
     </Grid>
 </Window>

@@ -8,7 +8,7 @@ namespace Lab
 {
     class MainScript
     {
-        static void Main()
+        /*static void Main()
         {
             V3DataCollection fileDataCollection = new V3DataCollection("test1.txt");
             Console.WriteLine(fileDataCollection.ToLongString("F1"));
@@ -44,7 +44,7 @@ namespace Lab
             {
                 Console.WriteLine(item);
             }
-        }
+        }*/
 
         static void MainCollectionNearest(V3MainCollection mainCollection, Vector2 point, string number)
         {
