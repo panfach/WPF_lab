@@ -3,9 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace Lab
+namespace ClassLibrary
 {
-    class V3DataOnGrid : V3Data, IEnumerable<DataItem>
+    [Serializable]
+    public class V3DataOnGrid : V3Data, IEnumerable<DataItem>
     {
         public Grid1D XGrid { get; set; }
         public Grid1D YGrid { get; set; }

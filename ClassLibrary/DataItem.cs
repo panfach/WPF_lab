@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Numerics;
+using System.Runtime.Serialization;
 
-namespace Lab
+namespace ClassLibrary
 {
-    struct DataItem
+    [Serializable]
+    public struct DataItem: ISerializable
     {
         public Vector2 Coord { get; set; }
         public double Value { get; set; }
@@ -12,6 +14,21 @@ namespace Lab
         {
             Coord = coord;
             Value = value;
+        }
+
+        public DataItem(SerializationInfo info, StreamingContext streamingContext)
+        {
+            float x = info.GetSingle("C_X");
+            float y = info.GetSingle("C_Y");
+            Coord = new Vector2(x, y);
+            Value = info.GetDouble("V");
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("C_X", Coord.X);
+            info.AddValue("C_Y", Coord.Y);
+            info.AddValue("V", Value);
         }
 
         public override string ToString()

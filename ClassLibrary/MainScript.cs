@@ -4,7 +4,7 @@
 using System;
 using System.Numerics;
 
-namespace Lab
+namespace ClassLibrary
 {
     class MainScript
     {

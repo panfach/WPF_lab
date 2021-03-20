@@ -3,21 +3,114 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Lab"
+        xmlns:local="clr-namespace:WPF"
+        xmlns:zz="clr-namespace:ClassLibrary;assembly=ClassLibrary"
+        
+        Loaded="OnLoad"
+        
+
         
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="700" WindowStyle="SingleBorderWindow">
-    <Grid ShowGridLines="true">
+        Title="MainWindow" Height="670" Width="1400" WindowStyle="SingleBorderWindow" Closing="OnClosing">
+    <Window.Resources>
+        <!--<zz:V3MainCollection x:Key="key_mainCollection"/>-->
+        <CollectionViewSource Source="{Binding}" x:Key="key_DataCollectionView" Filter="CollectionFilter" />
+        <CollectionViewSource Source="{Binding}" x:Key="key_DataOnGridView" Filter="OnGridFilter" />
+        
+    </Window.Resources>
+
+    <Grid Background="LightSteelBlue">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300 px">
-                <!--<Button Margin="286,144,285,144" />-->
-                <!--<TextBox Margin="200,308,199,21"/>-->
-            </ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="400 px" />
+            <ColumnDefinition Width="5 px" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
+
         <StackPanel Grid.Column="0">
-            <Button Grid.Column="0" Height="60" Width="auto" VerticalAlignment="Top" Margin="25,25,25,0" Content="Создать MainCollection"/>
-            <Button Grid.Column="0" Height="60" Width="auto" VerticalAlignment="Top" Margin="25,25,25,0" Content="Удалить MainCollection"/>
+            <Rectangle Fill="Black" Width="auto" Height="5" Margin="5,5,5,0"/>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="100"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="36" Text="FILE" />
+                <Button Name="button_New"  Grid.Row="1" Grid.Column="0" Margin="20,20,10,20" Content="New" Click="New"/>
+                <Button Name="button_Load" Grid.Row="1" Grid.Column="1" Margin="10,20,10,20" Content="Open" Click="Load"/>
+                <Button Name="button_Save" Grid.Row="1" Grid.Column="2" Margin="10,20,20,20" Content="Save" Click="Save"/>
+            </Grid>
+            <Rectangle Fill="Black" Width="auto" Height="5" Margin="5,0"/>
+            <TextBlock Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="36" Text="EDIT" />
+            <Button Height="60" Margin="20,20,20,10" Content="Add Defaults" Click="AddDefaults"/>
+            <Button Height="60" Margin="20,10,20,10" Content="Add Default V3DataCollection" Click="AddDefaultDataCollection"/>
+            <Button Height="60" Margin="20,10,20,10" Content="Add Default V3DataOnGrid" Click="AddDefaultDataOnGrid"/>
+            <Button Height="60" Margin="20,10,20,10" Content="Add Element from File" Click="AddElementFromFile"/>
+            <Button Height="60" Margin="20,10,20,10" Content="Remove" Click="Remove"/>
         </StackPanel>
+
+        <Rectangle Grid.Column="1" Fill="Black" />
+
+        <Grid Grid.Column="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="0.6*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height ="10 px" />
+                <RowDefinition Height ="30 px" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height ="10 px" />
+                <RowDefinition Height ="30 px" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height ="10 px" />
+                <RowDefinition Height ="30 px" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Rectangle Grid.Row="0" Grid.ColumnSpan="2" Fill="Black" Width="auto" Height="5" Margin="5,5,5,0"/>
+            <TextBlock Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Main Collection" />
+            <TextBlock Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Selected Item" />
+
+            <ListBox Name="listBox_Main" Grid.Row="2" Grid.Column="0" Margin="10,5,10,5" ItemsSource="{Binding}" SelectionChanged="MainCollectionSelectionChanged" />
+
+            <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,10,10,5" Text="{Binding Path=MaxDist}" />
+
+            <Rectangle Grid.Row="3" Grid.ColumnSpan="2" Fill="Black" Width="auto" Height="5" Margin="5,5,5,0"/>
+            <TextBlock Grid.Row="4" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Data On Grid" />
+            <TextBlock Grid.Row="4" Grid.Column="1"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Selected Item" />
+
+            <ListBox Name="listBox_DataOnGrid" Grid.Row="5" Grid.Column="0" Margin="10,5,10,10" ItemsSource="{Binding Source={StaticResource key_DataOnGridView}}" />
+
+            <Rectangle Grid.Row="6" Grid.ColumnSpan="2" Fill="Black" Width="auto" Height="5" Margin="5,5,5,0"/>
+            <TextBlock Grid.Row="7" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Data Collections" />
+            <TextBlock Grid.Row="7" Grid.Column="1"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Selected Item" />
+
+            <ListBox Name="listBox_DataCollection" Grid.Row="8" Grid.Column="0" Margin="10,5,10,10" ItemsSource="{Binding Source={StaticResource key_DataCollectionView}}" />
+
+            <ListBox Name="listBox_details" Grid.Row="8" Grid.Column="1" Margin="0,5,10,10">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock  Text="{Binding Path=FirstName}" />
+                            <TextBlock  Text="{Binding Path=SecondName}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            
+        </Grid>
+
+        <!--<Rectangle Grid.Column="3" Fill="Black" />
+
+        <ListBox Name="listBox_details" Grid.Column="4" Margin="10" /> -->
+        <!--<ListBox Name="listBox_Main" Grid.Column="0" Margin="0,0,10,0" ItemsSource="{Binding}" />
+        <ListBox Name="listBox_DataCollection" Grid.Column="1" Margin="0,0,10,0" ItemsSource="{Binding Source={StaticResource key_DataCollectionView}}" />
+        <ListBox Name="listBox_DataOnGrid" Grid.Column="2" ItemsSource="{Binding Source={StaticResource key_DataOnGridView}}" />-->
     </Grid>
+
 </Window>

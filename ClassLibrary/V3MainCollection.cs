@@ -1,14 +1,22 @@
 ﻿using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Numerics;
 using System.Linq;
 
-namespace Lab
+namespace ClassLibrary
 {
-    class V3MainCollection : IEnumerable<V3Data>
+    public class V3MainCollection : IEnumerable<V3Data>, INotifyCollectionChanged
     {
         List<V3Data> data;
+
+        public bool HasChanged { get; set; }
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+
 
         public int Count
         {
@@ -68,11 +76,36 @@ namespace Lab
         public V3MainCollection()
         {
             data = new List<V3Data>();
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            HasChanged = false;
         }
+
+        public V3MainCollection(List<V3Data> _data)
+        {
+            data = _data;
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            HasChanged = true;
+        }
+
 
         public void Add(V3Data item)
         {
             data.Add(item);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            HasChanged = true;
+        }
+
+        public bool Remove(V3Data item)
+        {
+            if (data.Remove(item))
+            {
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                HasChanged = true;
+
+                return true;
+            }
+
+            return false;
         }
 
         public bool Remove(string id, DateTime date)
@@ -83,6 +116,8 @@ namespace Lab
                 if (data[i].Info == id && data[i].Time.Hour == date.Hour)
                 {
                     data.RemoveAt(i);
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                    HasChanged = true;
                     presence = true;
                     i--;
                 }
@@ -92,16 +127,21 @@ namespace Lab
 
         public void AddDefaults()
         {
-            AddRandomDataOnGrid("DEFAULTDATA" + data.Count, DateTime.Now, new Grid1D(1f, 2), new Grid1D(1f, 2), 0f, 10f);
+            AddDataOnGrid("DEFAULTDATA" + data.Count, DateTime.Now, new Grid1D(1f, 2), new Grid1D(1f, 2), 0f, 10f);
 
-            AddRandomDataOnGrid("DEFAULTDATA" + data.Count, DateTime.Now, new Grid1D(1f, 0), new Grid1D(1f, 0), 0f, 10f); // 0 точек
+            AddDataOnGrid("DEFAULTDATA" + data.Count, DateTime.Now, new Grid1D(1f, 0), new Grid1D(1f, 0), 0f, 10f); // 0 точек
 
-            AddRandomDataCollection("DEFAULTDATA" + data.Count, DateTime.Now, 2, 4f, 4f, 0f, 10f);
+            AddDataCollection("DEFAULTDATA" + data.Count, DateTime.Now, 2, 4f, 4f, 0f, 10f);
 
-            AddRandomDataCollection("DEFAULTDATA" + data.Count, DateTime.Now, 0, 4f, 4f, 0f, 10f); // 0 точек
+            AddDataCollection("DEFAULTDATA" + data.Count, DateTime.Now, 0, 4f, 4f, 0f, 10f); // 0 точек
         }
 
-        public void AddRandomDataOnGrid(string info, DateTime time, Grid1D xGrid, Grid1D yGrid, double minValue, double maxValue)
+        public void AddRandomDataOnGrid()
+        {
+            AddDataOnGrid("DEFAULTDATA" + data.Count, DateTime.Now, new Grid1D(1f, 2), new Grid1D(1f, 2), 0f, 10f);
+        }
+
+        public void AddDataOnGrid(string info, DateTime time, Grid1D xGrid, Grid1D yGrid, double minValue, double maxValue)
         {
             V3DataOnGrid item = new V3DataOnGrid
             (
@@ -113,9 +153,16 @@ namespace Lab
 
             item.InitRandom(minValue, maxValue);
             data.Add(item);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            HasChanged = true;
         }
 
-        public void AddRandomDataCollection(string info, DateTime time, int nItems, float maxXCoord, float maxYCoord, double minValue, double maxValue)
+        public void AddRandomDataCollection()
+        {
+            AddDataCollection("DEFAULTDATA" + data.Count, DateTime.Now, 2, 4f, 4f, 0f, 10f);
+        }
+
+        public void AddDataCollection(string info, DateTime time, int nItems, float maxXCoord, float maxYCoord, double minValue, double maxValue)
         {
             V3DataCollection item = new V3DataCollection
             (
@@ -125,7 +172,72 @@ namespace Lab
 
             item.InitRandom(nItems, maxXCoord, maxYCoord, minValue, maxValue);
             data.Add(item);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            HasChanged = true;
         }
+
+        public bool Save(string filename)
+        {
+            FileStream fileStream = null;
+
+            try
+            {
+                fileStream = File.Open(filename, FileMode.OpenOrCreate);
+                BinaryFormatter binaryFormatter = new BinaryFormatter();
+                binaryFormatter.Serialize(fileStream, data);
+                HasChanged = false;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            finally
+            {
+                if (fileStream != null)
+                {
+                    fileStream.Close();
+                }
+            }
+        }
+
+        public bool Load(string filename)
+        {
+            FileStream fileStream = null;
+            List<V3Data> result = null;
+
+            try
+            {
+                fileStream = File.OpenRead(filename);
+                BinaryFormatter binaryFormatter = new BinaryFormatter();
+                result = binaryFormatter.Deserialize(fileStream) as List<V3Data>;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            finally
+            {
+                if (fileStream != null)
+                {
+                    fileStream.Close();
+                }
+            }
+
+            data = result;
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            HasChanged = false;
+
+            return true;
+        }
+
+        public void Clear()
+        {
+            data.Clear();
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            HasChanged = false;
+        }
+
 
         public override string ToString()
         {

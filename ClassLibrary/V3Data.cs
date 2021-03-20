@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Numerics;
+using System.Runtime.Serialization;
 
-namespace Lab
+namespace ClassLibrary
 {
-    abstract class V3Data
+    [Serializable]
+    public abstract class V3Data
     {
         public string Info { get; set; }
         public DateTime Time { get; set; }
+
 
         public V3Data() { }
 
@@ -19,7 +22,9 @@ namespace Lab
         public abstract Vector2[] Nearest(Vector2 v);
         public abstract string ToLongString();
         public abstract string ToLongString(string format);
+
         //public abstract static explicit operator V3DataCollection(V3DataOnGrid inp);
+
         /*public static explicit operator V3DataCollection(V3Data inp)
         {
             if (inp.GetType() == typeof(V3DataOnGrid)) return (V3DataCollection)((V3DataOnGrid)inp);

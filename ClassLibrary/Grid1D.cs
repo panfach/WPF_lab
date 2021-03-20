@@ -1,11 +1,14 @@
-﻿
+﻿using System;
 
-namespace Lab
+
+namespace ClassLibrary
 {
-    struct Grid1D
+    [Serializable]
+    public struct Grid1D
     {
         public float Step { get; set; }
         public int Size { get; set; }
+
 
         public Grid1D(float step, int size)
         {

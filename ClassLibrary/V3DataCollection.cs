@@ -4,14 +4,17 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.IO;
 using System.Globalization;
-//using System.Culture
+using System.Runtime.Serialization;
 
-namespace Lab
+namespace ClassLibrary
 {
-    class V3DataCollection : V3Data, IEnumerable<DataItem>
+    [Serializable]
+    public class V3DataCollection : V3Data, IEnumerable<DataItem>
     {
         public List<DataItem> items { get; set; }
-        CultureInfo cultInfo = new CultureInfo("ru-RU"); // 
+        [field: NonSerialized] public bool incorrectFileRead;
+        [field: NonSerialized] CultureInfo cultInfo = new CultureInfo("ru-RU");  
+
 
         public V3DataCollection(string info, DateTime time) : base(info, time)
         {
@@ -35,12 +38,13 @@ namespace Lab
             string[] lineValues;
 
             items = new List<DataItem>();
+            cultInfo = new CultureInfo("ru-RU");
 
-            string path = Path.Combine($"..\\..\\..\\{filename}");
+            //string path = Path.Combine($"..\\..\\..\\{filename}");
 
             try
             {
-                using (StreamReader reader = new StreamReader(path))
+                using (StreamReader reader = new StreamReader(filename))
                 {
                     if ((line = reader.ReadLine()) == null) Info = "DEFAULTNAME";
                     else Info = line.Trim();
@@ -75,6 +79,7 @@ namespace Lab
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                incorrectFileRead = true;
             }
         }
 
