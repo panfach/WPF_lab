@@ -4,19 +4,22 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPF"
-        xmlns:zz="clr-namespace:ClassLibrary;assembly=ClassLibrary"
-        
-        Loaded="OnLoad"
-        
-
-        
+        xmlns:zz="clr-namespace:ClassLibrary;assembly=ClassLibrary"            
         mc:Ignorable="d"
-        Title="MainWindow" Height="670" Width="1400" WindowStyle="SingleBorderWindow" Closing="OnClosing">
+        Title="MainWindow" Height="670" Width="1400" WindowStyle="SingleBorderWindow" Loaded="OnLoad" Closing="OnClosing">
+
     <Window.Resources>
-        <!--<zz:V3MainCollection x:Key="key_mainCollection"/>-->
         <CollectionViewSource Source="{Binding}" x:Key="key_DataCollectionView" Filter="CollectionFilter" />
         <CollectionViewSource Source="{Binding}" x:Key="key_DataOnGridView" Filter="OnGridFilter" />
-        
+        <local:CoordDataItemConverter x:Key="key_CoordDataItemConverter" />
+        <local:ValueDataItemConverter x:Key="key_ValueDataItemConverter" />
+        <local:DataOnGridConverter x:Key="key_DataOnGridConverter" />
+        <DataTemplate x:Key="key_DataItemTemplate">
+            <Grid>
+                <TextBlock Text="{Binding Converter={StaticResource key_CoordDataItemConverter}}" />
+                <TextBlock Margin="150,0,0,0" Text="{Binding Converter={StaticResource key_ValueDataItemConverter}}" />
+            </Grid>
+        </DataTemplate>
     </Window.Resources>
 
     <Grid Background="LightSteelBlue">
@@ -74,35 +77,21 @@
 
             <Rectangle Grid.Row="0" Grid.ColumnSpan="2" Fill="Black" Width="auto" Height="5" Margin="5,5,5,0"/>
             <TextBlock Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Main Collection" />
-            <TextBlock Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Selected Item" />
-
-            <ListBox Name="listBox_Main" Grid.Row="2" Grid.Column="0" Margin="10,5,10,5" ItemsSource="{Binding}" SelectionChanged="MainCollectionSelectionChanged" />
-
+            <TextBlock Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Maximum Distance" />
+            <ListBox Name="listBox_Main" Grid.Row="2" Grid.Column="0" Margin="10,5,10,5" ItemsSource="{Binding}" />
             <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,10,10,5" Text="{Binding Path=MaxDist}" />
 
             <Rectangle Grid.Row="3" Grid.ColumnSpan="2" Fill="Black" Width="auto" Height="5" Margin="5,5,5,0"/>
             <TextBlock Grid.Row="4" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Data On Grid" />
             <TextBlock Grid.Row="4" Grid.Column="1"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Selected Item" />
-
             <ListBox Name="listBox_DataOnGrid" Grid.Row="5" Grid.Column="0" Margin="10,5,10,10" ItemsSource="{Binding Source={StaticResource key_DataOnGridView}}" />
+            <TextBlock Grid.Row="5" Grid.Column="1" Margin="0,10,10,5" Text="{Binding ElementName=listBox_DataOnGrid, Path=SelectedItem, Converter={StaticResource key_DataOnGridConverter}}" />
 
             <Rectangle Grid.Row="6" Grid.ColumnSpan="2" Fill="Black" Width="auto" Height="5" Margin="5,5,5,0"/>
             <TextBlock Grid.Row="7" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Data Collections" />
             <TextBlock Grid.Row="7" Grid.Column="1"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Selected Item" />
-
             <ListBox Name="listBox_DataCollection" Grid.Row="8" Grid.Column="0" Margin="10,5,10,10" ItemsSource="{Binding Source={StaticResource key_DataCollectionView}}" />
-
-            <ListBox Name="listBox_details" Grid.Row="8" Grid.Column="1" Margin="0,5,10,10">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock  Text="{Binding Path=FirstName}" />
-                            <TextBlock  Text="{Binding Path=SecondName}"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-            
+            <ListBox Name="listBox_details" Grid.Row="8" Grid.Column="1" Margin="0,5,10,10" ItemsSource="{Binding ElementName=listBox_DataCollection, Path=SelectedItem}" ItemTemplate="{StaticResource key_DataItemTemplate}" />
         </Grid>
 
         <!--<Rectangle Grid.Column="3" Fill="Black" />

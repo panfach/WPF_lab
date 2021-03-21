@@ -76,23 +76,23 @@ namespace ClassLibrary
         public V3MainCollection()
         {
             data = new List<V3Data>();
+            CollectionChanged += CollectionChangedHandler;
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             HasChanged = false;
         }
 
-        public V3MainCollection(List<V3Data> _data)
+        /*public V3MainCollection(List<V3Data> _data)
         {
             data = _data;
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             HasChanged = true;
-        }
+        }*/
 
 
         public void Add(V3Data item)
         {
             data.Add(item);
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            HasChanged = true;
         }
 
         public bool Remove(V3Data item)
@@ -100,8 +100,6 @@ namespace ClassLibrary
             if (data.Remove(item))
             {
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-                HasChanged = true;
-
                 return true;
             }
 
@@ -117,7 +115,6 @@ namespace ClassLibrary
                 {
                     data.RemoveAt(i);
                     CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-                    HasChanged = true;
                     presence = true;
                     i--;
                 }
@@ -154,7 +151,6 @@ namespace ClassLibrary
             item.InitRandom(minValue, maxValue);
             data.Add(item);
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            HasChanged = true;
         }
 
         public void AddRandomDataCollection()
@@ -173,7 +169,6 @@ namespace ClassLibrary
             item.InitRandom(nItems, maxXCoord, maxYCoord, minValue, maxValue);
             data.Add(item);
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            HasChanged = true;
         }
 
         public bool Save(string filename)
@@ -236,6 +231,11 @@ namespace ClassLibrary
             data.Clear();
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             HasChanged = false;
+        }
+
+        void CollectionChangedHandler(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            HasChanged = true;
         }
 
 

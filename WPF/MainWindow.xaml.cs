@@ -28,7 +28,6 @@ namespace WPF
     public partial class MainWindow : Window
     {
         V3MainCollection mainCollection = new V3MainCollection();
-        V3Data selectedData = null;
 
         public MainWindow()
         {
@@ -72,7 +71,8 @@ namespace WPF
 
         public void Remove(object sender, RoutedEventArgs e)
         {
-            if (!mainCollection.Remove(selectedData)) MessageBox.Show("Выберите элемент в Main Collection, который хотите удалить.", "Remove", MessageBoxButton.OK, MessageBoxImage.Question);
+            if (!mainCollection.Remove((V3Data)listBox_Main.SelectedItem)) 
+                MessageBox.Show("Выберите элемент в Main Collection, который хотите удалить.", "Remove", MessageBoxButton.OK, MessageBoxImage.Question);
         }
 
         public void OnLoad(object sender, RoutedEventArgs e)
@@ -83,11 +83,6 @@ namespace WPF
         public void OnClosing(object sender, CancelEventArgs e)
         {
             if (!CheckChangedDataConditions()) e.Cancel = true;
-        }
-
-        public void MainCollectionSelectionChanged(object sender, RoutedEventArgs e)
-        {
-            selectedData = (V3Data)listBox_Main.SelectedItem;
         }
 
 
