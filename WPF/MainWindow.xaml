@@ -93,13 +93,6 @@
             <ListBox Name="listBox_DataCollection" Grid.Row="8" Grid.Column="0" Margin="10,5,10,10" ItemsSource="{Binding Source={StaticResource key_DataCollectionView}}" />
             <ListBox Name="listBox_details" Grid.Row="8" Grid.Column="1" Margin="0,5,10,10" ItemsSource="{Binding ElementName=listBox_DataCollection, Path=SelectedItem}" ItemTemplate="{StaticResource key_DataItemTemplate}" />
         </Grid>
-
-        <!--<Rectangle Grid.Column="3" Fill="Black" />
-
-        <ListBox Name="listBox_details" Grid.Column="4" Margin="10" /> -->
-        <!--<ListBox Name="listBox_Main" Grid.Column="0" Margin="0,0,10,0" ItemsSource="{Binding}" />
-        <ListBox Name="listBox_DataCollection" Grid.Column="1" Margin="0,0,10,0" ItemsSource="{Binding Source={StaticResource key_DataCollectionView}}" />
-        <ListBox Name="listBox_DataOnGrid" Grid.Column="2" ItemsSource="{Binding Source={StaticResource key_DataOnGridView}}" />-->
     </Grid>
 
 </Window>
