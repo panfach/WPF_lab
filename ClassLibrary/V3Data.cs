@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Numerics;
-using System.Runtime.Serialization;
+using System.ComponentModel;
 
 namespace ClassLibrary
 {
     [Serializable]
-    public abstract class V3Data
+    public abstract class V3Data: INotifyPropertyChanged
     {
         public string Info { get; set; }
         public DateTime Time { get; set; }
+
+        [field: NonSerialized] public event PropertyChangedEventHandler PropertyChanged;
 
 
         public V3Data() { }
@@ -19,17 +21,14 @@ namespace ClassLibrary
             Time = time;
         }
 
+        public void InvokePropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         public abstract Vector2[] Nearest(Vector2 v);
         public abstract string ToLongString();
         public abstract string ToLongString(string format);
-
-        //public abstract static explicit operator V3DataCollection(V3DataOnGrid inp);
-
-        /*public static explicit operator V3DataCollection(V3Data inp)
-        {
-            if (inp.GetType() == typeof(V3DataOnGrid)) return (V3DataCollection)((V3DataOnGrid)inp);
-            else return (V3DataCollection)inp;
-        }*/
 
         public override string ToString()
         {

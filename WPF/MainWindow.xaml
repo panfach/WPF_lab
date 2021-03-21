@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WPF"
         xmlns:zz="clr-namespace:ClassLibrary;assembly=ClassLibrary"            
         mc:Ignorable="d"
-        Title="MainWindow" Height="670" Width="1400" WindowStyle="SingleBorderWindow" Loaded="OnLoad" Closing="OnClosing">
+        Title="MainWindow" Height="670" Width="1400" WindowStyle="SingleBorderWindow" Loaded="OnLoaded" Closing="OnClosing">
 
     <Window.Resources>
         <CollectionViewSource Source="{Binding}" x:Key="key_DataCollectionView" Filter="CollectionFilter" />

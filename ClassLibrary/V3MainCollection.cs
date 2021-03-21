@@ -3,19 +3,21 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Collections.Specialized;
 using System.Numerics;
 using System.Linq;
 
 namespace ClassLibrary
 {
-    public class V3MainCollection : IEnumerable<V3Data>, INotifyCollectionChanged
+    public class V3MainCollection : IEnumerable<V3Data>, INotifyCollectionChanged, INotifyPropertyChanged
     {
         List<V3Data> data;
 
         public bool HasChanged { get; set; }
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
 
         public int Count
@@ -236,6 +238,7 @@ namespace ClassLibrary
         void CollectionChangedHandler(object sender, NotifyCollectionChangedEventArgs e)
         {
             HasChanged = true;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MaxDist"));
         }
 
 

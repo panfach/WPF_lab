@@ -12,7 +12,7 @@ namespace ClassLibrary
     {
         public List<DataItem> items { get; set; }
         [field: NonSerialized] public bool incorrectFileRead;
-        [field: NonSerialized] CultureInfo cultInfo = new CultureInfo("ru-RU");  
+        [field: NonSerialized] CultureInfo cultInfo = new CultureInfo("ru-RU");
 
 
         public V3DataCollection(string info, DateTime time) : base(info, time)

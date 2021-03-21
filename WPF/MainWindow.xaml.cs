@@ -19,6 +19,11 @@ namespace WPF
             InitializeComponent();
         }
 
+        public void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            DataContext = mainCollection;
+        }
+
         public void New(object sender, RoutedEventArgs e)
         {
             New();
@@ -58,11 +63,6 @@ namespace WPF
         {
             if (!mainCollection.Remove((V3Data)listBox_Main.SelectedItem)) 
                 MessageBox.Show("Выберите элемент в Main Collection, который хотите удалить.", "Remove", MessageBoxButton.OK, MessageBoxImage.Question);
-        }
-
-        public void OnLoad(object sender, RoutedEventArgs e)
-        {
-            mainCollection.CollectionChanged += CollectionChangedHandler;
         }
 
         public void OnClosing(object sender, CancelEventArgs e)
@@ -134,12 +134,6 @@ namespace WPF
 
             MessageBox.Show("Что-то пошло не так", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             return false;
-        }
-
-        void CollectionChangedHandler(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            DataContext = null;
-            DataContext = mainCollection;
         }
 
         void CollectionFilter(object source, FilterEventArgs args) 

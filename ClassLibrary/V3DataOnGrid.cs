@@ -8,9 +8,29 @@ namespace ClassLibrary
     [Serializable]
     public class V3DataOnGrid : V3Data, IEnumerable<DataItem>
     {
-        public Grid1D XGrid { get; set; }
-        public Grid1D YGrid { get; set; }
-        public double[,] Value { get; set; }
+        private Grid1D xGrid;
+        private Grid1D yGrid;
+        private double[,] Value { get; set; }
+
+        public Grid1D XGrid 
+        {
+            get => xGrid;
+            set
+            {
+                xGrid = value;
+                InvokePropertyChanged("XGrid");
+            }
+        }
+
+        public Grid1D YGrid
+        {
+            get => yGrid;
+            set
+            {
+                yGrid = value;
+                InvokePropertyChanged("YGrid");
+            }
+        }
 
         public V3DataOnGrid(string info, DateTime time, Grid1D xGrid, Grid1D yGrid) : base(info, time)
         {
