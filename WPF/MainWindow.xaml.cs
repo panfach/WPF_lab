@@ -4,6 +4,8 @@ using System.Windows.Data;
 using System.ComponentModel;
 using Microsoft.Win32;
 using ClassLibrary;
+using System.Windows.Input;
+using System.Windows.Controls;
 
 namespace WPF
 {
@@ -12,7 +14,10 @@ namespace WPF
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static RoutedCommand AddCommand = new RoutedCommand("Add", typeof(MainWindow));
+
         V3MainCollection mainCollection = new V3MainCollection();
+        DataItemCreator dataItemCreator;
 
         public MainWindow()
         {
@@ -27,16 +32,6 @@ namespace WPF
         public void New(object sender, RoutedEventArgs e)
         {
             New();
-        }
-
-        public void Save(object sender, RoutedEventArgs e)
-        {
-            Save();
-        }
-
-        public void Load(object sender, RoutedEventArgs e)
-        {
-            Load();
         }
 
         public void AddDefaults(object sender, RoutedEventArgs e)
@@ -59,15 +54,56 @@ namespace WPF
             AddElementFromFile();
         }
 
-        public void Remove(object sender, RoutedEventArgs e)
-        {
-            if (!mainCollection.Remove((V3Data)listBox_Main.SelectedItem)) 
-                MessageBox.Show("Выберите элемент в Main Collection, который хотите удалить.", "Remove", MessageBoxButton.OK, MessageBoxImage.Question);
-        }
-
         public void OnClosing(object sender, CancelEventArgs e)
         {
             if (!CheckChangedDataConditions()) e.Cancel = true;
+        }
+
+        public void InitDataItemCreator(object sender, RoutedEventArgs e)
+        {
+            dataItemCreator = new DataItemCreator(listBox_Main.SelectedItem as V3DataCollection);
+            grid_DataItemCreator.DataContext = dataItemCreator;
+        }
+
+
+        public void CanSaveCommandHandler(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = mainCollection.HasChanged;
+        }
+
+        public void SaveCommandHandler(object sender, ExecutedRoutedEventArgs e)
+        {
+            Save();
+        }
+
+        public void OpenCommandHandler(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (!CheckChangedDataConditions()) return;
+            Load();
+        }
+
+        public void CanDeleteCommandHandler(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = (listBox_Main != null && listBox_Main.SelectedItem != null);
+        }
+
+        public void DeleteCommandHandler(object sender, ExecutedRoutedEventArgs e)
+        {
+            mainCollection.Remove((V3Data)listBox_Main.SelectedItem);
+        }
+
+        public void CanAddCommandHandler(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (listBox_Main != null && listBox_Main.SelectedItem != null && listBox_Main.SelectedItem is V3DataCollection)
+            {
+                e.CanExecute = !(Validation.GetHasError(textblock_DataItemXCoord) || Validation.GetHasError(textblock_DataItemYCoord) || Validation.GetHasError(textblock_DataItemValue));
+            }
+            else e.CanExecute = false;
+        }
+
+        public void AddCommandHandler(object sender, ExecutedRoutedEventArgs e)
+        {
+            dataItemCreator.AddDataItem();
         }
 
 
@@ -119,8 +155,6 @@ namespace WPF
 
         bool Load()
         {
-            if (!CheckChangedDataConditions()) return false;
-
             OpenFileDialog dlg = new OpenFileDialog();
             string dirPath = System.IO.Path.Combine("..\\..\\..\\SaveFiles");
             dlg.InitialDirectory = System.IO.Path.GetFullPath(dirPath);

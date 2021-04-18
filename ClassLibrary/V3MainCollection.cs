@@ -94,6 +94,7 @@ namespace ClassLibrary
         public void Add(V3Data item)
         {
             data.Add(item);
+            if (item is V3DataCollection) ((V3DataCollection)item).CollectionChanged += DataCollectionChangedHandler;
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
@@ -170,6 +171,7 @@ namespace ClassLibrary
 
             item.InitRandom(nItems, maxXCoord, maxYCoord, minValue, maxValue);
             data.Add(item);
+            item.CollectionChanged += DataCollectionChangedHandler;
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
@@ -222,6 +224,7 @@ namespace ClassLibrary
             }
 
             data = result;
+            SubscribeToDataCollectionEvents();
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             HasChanged = false;
 
@@ -233,6 +236,19 @@ namespace ClassLibrary
             data.Clear();
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             HasChanged = false;
+        }
+
+        void SubscribeToDataCollectionEvents()
+        {
+            foreach (V3DataCollection item in (from _item in data where _item is V3DataCollection select _item))
+            {
+                item.CollectionChanged += DataCollectionChangedHandler;
+            }
+        }
+
+        void DataCollectionChangedHandler(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         void CollectionChangedHandler(object sender, NotifyCollectionChangedEventArgs e)

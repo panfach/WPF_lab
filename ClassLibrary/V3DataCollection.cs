@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Numerics;
 using System.IO;
 using System.Globalization;
@@ -8,11 +9,13 @@ using System.Globalization;
 namespace ClassLibrary
 {
     [Serializable]
-    public class V3DataCollection : V3Data, IEnumerable<DataItem>
+    public class V3DataCollection : V3Data, IEnumerable<DataItem>, INotifyCollectionChanged
     {
         public List<DataItem> items { get; set; }
         [field: NonSerialized] public bool incorrectFileRead;
         [field: NonSerialized] CultureInfo cultInfo = new CultureInfo("ru-RU");
+
+        [field: NonSerialized] public event NotifyCollectionChangedEventHandler CollectionChanged;
 
 
         public V3DataCollection(string info, DateTime time) : base(info, time)
@@ -82,6 +85,12 @@ namespace ClassLibrary
             }
         }
 
+        public void Add(DataItem item)
+        {
+            items.Add(item);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
         public void InitRandom(int nItems, float xmax, float ymax, double minValue, double maxValue)
         {
             Vector2 coord;
@@ -90,9 +99,11 @@ namespace ClassLibrary
             for (int i = 0; i < nItems; i++)
             {
                 coord = new Vector2((float)Rand.Double(xmax), (float)Rand.Double(ymax));
+                coord.X = (float)Math.Round(coord.X, 2);
+                coord.Y = (float)Math.Round(coord.Y, 2);
                 value = Rand.Double(minValue, maxValue);
 
-                items.Add(new DataItem(coord, value));
+                Add(new DataItem(coord, value));
             }
         }
 
