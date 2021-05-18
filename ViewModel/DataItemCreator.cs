@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using ClassLibrary;
 
-namespace WPF
+namespace ViewModel
 {
     public class DataItemCreator : IDataErrorInfo, INotifyPropertyChanged
     {
@@ -19,6 +19,7 @@ namespace WPF
             {
                 xCoord = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("X"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Y"));
             }
         }
 
@@ -28,6 +29,7 @@ namespace WPF
             set
             {
                 yCoord = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("X"));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Y"));
             }
         }
@@ -46,9 +48,9 @@ namespace WPF
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public DataItemCreator(V3DataCollection _source)
+        public DataItemCreator(object _source)
         {
-            source = _source;
+            source = _source as V3DataCollection;
         }
 
 

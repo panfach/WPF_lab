@@ -9,8 +9,8 @@
         Title="MainWindow" Height="800" Width="1400" WindowStyle="SingleBorderWindow" Loaded="OnLoaded" Closing="OnClosing">
 
     <Window.Resources>
-        <CollectionViewSource Source="{Binding}" x:Key="key_DataCollectionView" Filter="CollectionFilter" />
-        <CollectionViewSource Source="{Binding}" x:Key="key_DataOnGridView" Filter="OnGridFilter" />
+        <CollectionViewSource Source="{Binding Path=MainCollection}" x:Key="key_DataCollectionView" Filter="CollectionFilter" />
+        <CollectionViewSource Source="{Binding Path=MainCollection}" x:Key="key_DataOnGridView" Filter="OnGridFilter" />
         <local:CoordDataItemConverter x:Key="key_CoordDataItemConverter" />
         <local:ValueDataItemConverter x:Key="key_ValueDataItemConverter" />
         <local:DataOnGridConverter x:Key="key_DataOnGridConverter" />
@@ -116,7 +116,7 @@
             <Rectangle Grid.Row="0" Grid.ColumnSpan="2" Fill="Black" Width="auto" Height="5" Margin="5,5,5,0"/>
             <TextBlock Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Main Collection" />
             <TextBlock Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Maximum Distance" />
-            <ListBox Name="listBox_Main" Grid.Row="2" Grid.Column="0" Margin="10,5,10,5" ItemsSource="{Binding}" SelectionChanged="InitDataItemCreator" />
+            <ListBox Name="listBox_Main" Grid.Row="2" Grid.Column="0" Margin="10,5,10,5" ItemsSource="{Binding Path=MainCollection}" SelectionChanged="InitDataItemCreator" />
             <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,10,10,5" Text="{Binding Path=MaxDist}" />
 
             <Rectangle Grid.Row="3" Grid.ColumnSpan="2" Fill="Black" Width="auto" Height="5" Margin="5,5,5,0"/>

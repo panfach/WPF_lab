@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Data;
 using System.Globalization;
-using ClassLibrary;
+using ViewModel;
 
 namespace WPF
 {
@@ -9,12 +9,7 @@ namespace WPF
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            V3DataOnGrid item = (V3DataOnGrid)value;
-
-            if (item != null)
-                return $"   SizeX: {item.XGrid.Size}   SizeY: {item.YGrid.Size}";
-            else 
-                return " ";
+            return DataConvertion.DataOnGrid(value);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

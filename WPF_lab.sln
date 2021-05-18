@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary", "ClassLibrar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WPF", "WPF\WPF.csproj", "{D19FF1FA-D871-478C-BA10-0C0098392AD0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ViewModel", "ViewModel\ViewModel.csproj", "{1B509C50-3D83-47B1-BED9-51E419305289}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViewModel.Tests", "UnitTest\ViewModel.Tests.csproj", "{9709D121-DE3D-4051-8FE7-B1E89D60E4AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{D19FF1FA-D871-478C-BA10-0C0098392AD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D19FF1FA-D871-478C-BA10-0C0098392AD0}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{D19FF1FA-D871-478C-BA10-0C0098392AD0}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{1B509C50-3D83-47B1-BED9-51E419305289}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B509C50-3D83-47B1-BED9-51E419305289}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B509C50-3D83-47B1-BED9-51E419305289}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B509C50-3D83-47B1-BED9-51E419305289}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9709D121-DE3D-4051-8FE7-B1E89D60E4AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9709D121-DE3D-4051-8FE7-B1E89D60E4AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9709D121-DE3D-4051-8FE7-B1E89D60E4AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9709D121-DE3D-4051-8FE7-B1E89D60E4AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

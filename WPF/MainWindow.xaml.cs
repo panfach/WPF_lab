@@ -3,9 +3,9 @@ using System.Windows;
 using System.Windows.Data;
 using System.ComponentModel;
 using Microsoft.Win32;
-using ClassLibrary;
 using System.Windows.Input;
 using System.Windows.Controls;
+using ViewModel;
 
 namespace WPF
 {
@@ -16,7 +16,7 @@ namespace WPF
     {
         public static RoutedCommand AddCommand = new RoutedCommand("Add", typeof(MainWindow));
 
-        V3MainCollection mainCollection = new V3MainCollection();
+        MainViewModel viewModel = new MainViewModel();                                // old: V3MainCollection mainCollection = new V3MainCollection();
         DataItemCreator dataItemCreator;
 
         public MainWindow()
@@ -26,7 +26,7 @@ namespace WPF
 
         public void OnLoaded(object sender, RoutedEventArgs e)
         {
-            DataContext = mainCollection;
+            DataContext = viewModel;                                                   // old: DataContext = mainCollection;
         }
 
         public void New(object sender, RoutedEventArgs e)
@@ -36,17 +36,17 @@ namespace WPF
 
         public void AddDefaults(object sender, RoutedEventArgs e)
         {
-            mainCollection.AddDefaults();
+            viewModel.AddDefaults();                                                    // old: mainCollection.AddDefaults();
         }
 
         public void AddDefaultDataCollection(object sender, RoutedEventArgs e)
         {
-            mainCollection.AddRandomDataCollection();
+            viewModel.AddRandomDataCollection();                                        // old: mainCollection.AddRandomDataCollection();
         }
 
         public void AddDefaultDataOnGrid(object sender, RoutedEventArgs e)
         {
-            mainCollection.AddRandomDataOnGrid();
+            viewModel.AddRandomDataOnGrid();                                            // old: //mainCollection.AddRandomDataOnGrid();
         }
 
         public void AddElementFromFile(object sender, RoutedEventArgs e)
@@ -61,14 +61,14 @@ namespace WPF
 
         public void InitDataItemCreator(object sender, RoutedEventArgs e)
         {
-            dataItemCreator = new DataItemCreator(listBox_Main.SelectedItem as V3DataCollection);
+            dataItemCreator = new DataItemCreator(listBox_Main.SelectedItem);
             grid_DataItemCreator.DataContext = dataItemCreator;
         }
 
 
         public void CanSaveCommandHandler(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = mainCollection.HasChanged;
+            e.CanExecute = viewModel.HasChanged;
         }
 
         public void SaveCommandHandler(object sender, ExecutedRoutedEventArgs e)
@@ -89,12 +89,12 @@ namespace WPF
 
         public void DeleteCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
-            mainCollection.Remove((V3Data)listBox_Main.SelectedItem);
+            viewModel.Remove(listBox_Main.SelectedItem);
         }
 
         public void CanAddCommandHandler(object sender, CanExecuteRoutedEventArgs e)
         {
-            if (listBox_Main != null && listBox_Main.SelectedItem != null && listBox_Main.SelectedItem is V3DataCollection)
+            if (listBox_Main != null && listBox_Main.SelectedItem != null && viewModel.IsDataCollection(listBox_Main.SelectedItem))
             {
                 e.CanExecute = !(Validation.GetHasError(textblock_DataItemXCoord) || Validation.GetHasError(textblock_DataItemYCoord) || Validation.GetHasError(textblock_DataItemValue));
             }
@@ -110,21 +110,15 @@ namespace WPF
         void AddElementFromFile()
         {
             OpenFileDialog dlg = new OpenFileDialog();
-            V3DataCollection dataCollection;
             string dirPath = System.IO.Path.Combine("..\\..\\..\\SaveFiles");
             dlg.InitialDirectory = System.IO.Path.GetFullPath(dirPath);
             dlg.RestoreDirectory = true;
             dlg.Filter = "Text file (*.txt)|*.txt";
 
             if (dlg.ShowDialog() == false)
-            {
                 return;
-            }
-            else if (!(dataCollection = new V3DataCollection(dlg.FileName)).incorrectFileRead)
-            {
-                mainCollection.Add(dataCollection);
+            if (viewModel.TryAddDataCollection(dlg.FileName))
                 return;
-            }
 
             MessageBox.Show("Невозможно прочитать выбранный файл. Формат данных некорректен.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -133,7 +127,7 @@ namespace WPF
         {
             if (!CheckChangedDataConditions()) return;
 
-            mainCollection.Clear();
+            viewModel.Clear();
         }
 
         bool Save()
@@ -146,7 +140,7 @@ namespace WPF
 
             if (dlg.ShowDialog() == false)
                 return false;
-            else if (mainCollection.Save(dlg.FileName))
+            else if (viewModel.Save(dlg.FileName))
                 return true;
 
             MessageBox.Show("Что-то пошло не так", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -163,7 +157,7 @@ namespace WPF
 
             if (dlg.ShowDialog() == false)
                 return false;
-            else if (mainCollection.Load(dlg.FileName))
+            else if (viewModel.Load(dlg.FileName))
                 return true;
 
             MessageBox.Show("Что-то пошло не так", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -172,23 +166,17 @@ namespace WPF
 
         void CollectionFilter(object source, FilterEventArgs args) 
         {
-            V3Data data = args.Item as V3Data;
-
-            if (data != null && data is V3DataCollection) args.Accepted = true;
-            else args.Accepted = false;
+            args.Accepted = viewModel.IsDataCollection(args.Item);
         }
 
         void OnGridFilter(object source, FilterEventArgs args)
         {
-            V3Data data = args.Item as V3Data;
-
-            if (data != null && data is V3DataOnGrid) args.Accepted = true;
-            else args.Accepted = false;
+            args.Accepted = viewModel.IsDataOnGrid(args.Item);
         }
 
         bool CheckChangedDataConditions()
         {
-            if (mainCollection.HasChanged)
+            if (viewModel.HasChanged)
             {
                 MessageBoxResult res = MessageBox.Show("Имеются несохраненные данные. Сохранить их?", "Несохраненные данные", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
 

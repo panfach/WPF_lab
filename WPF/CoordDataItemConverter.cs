@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Data;
 using System.Globalization;
-using ClassLibrary;
+using ViewModel;
 
 namespace WPF
 {
@@ -9,10 +9,7 @@ namespace WPF
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is DataItem)
-                return $"X: {((DataItem)value).Coord.X.ToString("F2")}  Y: {((DataItem)value).Coord.Y.ToString("F2")}";
-            else
-                return " ";
+            return DataConvertion.CoordDataItem(value);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
