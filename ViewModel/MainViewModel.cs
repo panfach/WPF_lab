@@ -4,69 +4,124 @@ using ClassLibrary;
 using System.Collections.Specialized;
 using System.Collections;
 using System.ComponentModel;
+using System.Windows.Input;
+using System.Linq;
 
 namespace ViewModel
 {
-    public class MainViewModel : ViewModelBase , IEnumerable<V3Data>
+    public interface IUIServices
+    {
+        bool ChooseElementFromFile(ref string filename, string dirPath);
+        bool ChooseSaveFile(ref string filename, string dirPath);
+        bool ChooseLoadFile(ref string filename, string dirPath);
+        void ConfirmError(string errorText, string errorTitle);
+        bool? ConfirmWarning(string text, string title);
+    }
+
+    public class MainViewModel : ViewModelBase
     {
         V3MainCollection mainCollection = new V3MainCollection();
+        IUIServices svc;
 
-
-        public MainViewModel()
-        {
-            mainCollection.PropertyChanged += PropertyChangedHandler;
-        }
-
+        public ICommand AddElementFromFileCommand { get; private set; }
+        public ICommand NewCommand { get; private set; }
+        public ICommand AddDefaultsCommand { get; private set; }
+        public ICommand AddDefaultDataCollectionCommand { get; private set; }
+        public ICommand AddDefaultDataOnGridCommand { get; private set; }
+        public ICommand RemoveCommand { get; private set; }
+        public ICommand SaveCommand { get; private set; }
+        public ICommand LoadCommand { get; private set; }
+        public ICommand ClearCommand { get; private set; }
+        public V3Data MainSelectedItem { get; set; }
         public V3MainCollection MainCollection
         {
             get => mainCollection;
         }
-
+        public IEnumerable DataCollectionView
+        {
+            get => from item in mainCollection where item is V3DataCollection select item;
+        }
+        public IEnumerable DataOnGridView
+        {
+            get => from item in mainCollection where item is V3DataOnGrid select item;
+        }
         public bool HasChanged
         {
             get => mainCollection.HasChanged;
         }
-
         public float MaxDist
         {
             get => mainCollection.MaxDist;
         }
 
-
-        public void AddDefaults()
+        public MainViewModel(IUIServices _svc)
         {
-            mainCollection.AddDefaults();
+            mainCollection.PropertyChanged += PropertyChangedHandler;
+            mainCollection.CollectionChanged += CollectionChangedHandler;
+            svc = _svc;
+
+            AddElementFromFileCommand = new RelayCommand(
+                _ =>
+                {
+                    string filename = string.Empty;
+                    string dirPath = System.IO.Path.Combine("..\\..\\..\\..\\SaveFiles");
+                    if (svc.ChooseElementFromFile(ref filename, dirPath))
+                    {
+                        if (!TryAddDataCollection(filename))
+                            svc.ConfirmError("Невозможно прочитать выбранный файл. Формат данных некорректен.", "Ошибка");
+                    }
+                }
+                );
+
+            NewCommand = new RelayCommand(
+                _ =>
+                {
+                    if (CheckChangedDataConditions())
+                        mainCollection.Clear();
+                }
+                );
+
+            AddDefaultsCommand = new RelayCommand(_ => mainCollection.AddDefaults());
+
+            AddDefaultDataCollectionCommand = new RelayCommand(_ => mainCollection.AddRandomDataCollection());
+
+            AddDefaultDataOnGridCommand = new RelayCommand(_ => mainCollection.AddRandomDataOnGrid());
+
+            RemoveCommand = new RelayCommand(
+                _ => mainCollection.Remove(MainSelectedItem),
+                _ => (MainCollection != null && MainSelectedItem != null)
+                );
+
+            SaveCommand = new RelayCommand(
+                _ =>
+                {
+                    string filename = string.Empty;
+                    string dirPath = System.IO.Path.Combine("..\\..\\..\\..\\SaveFiles");
+                    if (svc.ChooseSaveFile(ref filename, dirPath))
+                    {
+                        if (!mainCollection.Save(filename))
+                            svc.ConfirmError("Что-то пошло не так", "Ошибка");
+                    }
+                },
+                _ => HasChanged
+                );
+
+            LoadCommand = new RelayCommand(
+                _ =>
+                {
+                    if (!CheckChangedDataConditions()) return;
+
+                    string filename = string.Empty;
+                    string dirPath = System.IO.Path.Combine("..\\..\\..\\..\\SaveFiles");
+                    if (svc.ChooseLoadFile(ref filename, dirPath))
+                    {
+                        if (!mainCollection.Load(filename))
+                            svc.ConfirmError("Что-то пошло не так", "Ошибка");
+                    }
+                }
+                );
         }
 
-        public void AddRandomDataCollection()
-        {
-            mainCollection.AddRandomDataCollection();
-        }
-
-        public void AddRandomDataOnGrid()
-        {
-            mainCollection.AddRandomDataOnGrid();
-        }
-
-        public void Remove(object item)
-        {
-            mainCollection.Remove((V3Data)item);
-        }
-
-        public bool Save(string filename)
-        {
-            return mainCollection.Save(filename);
-        }
-
-        public bool Load(string filename)
-        {
-            return mainCollection.Load(filename);
-        }
-
-        public void Clear()
-        {
-            mainCollection.Clear();
-        }
 
         public bool TryAddDataCollection(string filename)
         {
@@ -81,6 +136,25 @@ namespace ViewModel
             return false;
         }
 
+        public bool CheckChangedDataConditions()
+        {
+            if (HasChanged)
+            {
+                switch (svc.ConfirmWarning("Имеются несохраненные данные. Сохранить их?", "Несохраненные данные"))
+                {
+                    case true:
+                        SaveCommand.Execute(this);
+                        return !HasChanged;
+                    case false:
+                        return true;
+                    case null:
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
         public bool IsDataCollection(object item) => item is V3DataCollection;
 
         public bool IsDataOnGrid(object item) => item is V3DataOnGrid;
@@ -91,15 +165,10 @@ namespace ViewModel
             RaisePropertyChanged(e.PropertyName);
         }
 
-
-        public IEnumerator<V3Data> GetEnumerator()
+        public void CollectionChangedHandler(object sender, NotifyCollectionChangedEventArgs e)
         {
-            return mainCollection.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return mainCollection.GetEnumerator();
+            RaisePropertyChanged("DataCollectionView");
+            RaisePropertyChanged("DataOnGridView");
         }
     }
 }

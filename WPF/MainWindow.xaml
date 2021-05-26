@@ -4,16 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPF"
-        xmlns:zz="clr-namespace:ClassLibrary;assembly=ClassLibrary"            
+        xmlns:vm="clr-namespace:ViewModel;assembly=ViewModel"            
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="1400" WindowStyle="SingleBorderWindow" Loaded="OnLoaded" Closing="OnClosing">
+        Title="MainWindow" Height="800" Width="1400" WindowStyle="SingleBorderWindow" Closing="OnClosing">
 
     <Window.Resources>
-        <CollectionViewSource Source="{Binding Path=MainCollection}" x:Key="key_DataCollectionView" Filter="CollectionFilter" />
-        <CollectionViewSource Source="{Binding Path=MainCollection}" x:Key="key_DataOnGridView" Filter="OnGridFilter" />
-        <local:CoordDataItemConverter x:Key="key_CoordDataItemConverter" />
-        <local:ValueDataItemConverter x:Key="key_ValueDataItemConverter" />
-        <local:DataOnGridConverter x:Key="key_DataOnGridConverter" />
+        <vm:CoordDataItemConverter x:Key="key_CoordDataItemConverter" />
+        <vm:ValueDataItemConverter x:Key="key_ValueDataItemConverter" />
+        <vm:DataOnGridConverter x:Key="key_DataOnGridConverter" />
         <DataTemplate x:Key="key_DataItemTemplate">
             <Grid>
                 <TextBlock Text="{Binding Converter={StaticResource key_CoordDataItemConverter}}" />
@@ -23,14 +21,6 @@
     </Window.Resources>
 
     <Window.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.Open"
-                                            Executed="OpenCommandHandler" />
-        <CommandBinding Command="ApplicationCommands.Save"
-                                            Executed="SaveCommandHandler"
-                                            CanExecute="CanSaveCommandHandler" />
-        <CommandBinding Command="ApplicationCommands.Delete"
-                                            Executed="DeleteCommandHandler"
-                                            CanExecute="CanDeleteCommandHandler" />
         <CommandBinding Command="local:MainWindow.AddCommand"
                                             Executed="AddCommandHandler"
                                             CanExecute="CanAddCommandHandler" />
@@ -57,17 +47,17 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="FILE" />
-                <Button Name="button_New"  Grid.Row="1" Grid.Column="0" Margin="10,10,0,10" Content="New" Click="New"/>
-                <Button Name="button_Load" Grid.Row="1" Grid.Column="1" Margin="10,10,0,10" Content="Open" Command="ApplicationCommands.Open" CommandParameter="From FileMenu"  />
-                <Button Name="button_Save" Grid.Row="1" Grid.Column="2" Margin="10,10,10,10" Content="Save" Command="ApplicationCommands.Save" CommandParameter="From FileMenu" />
+                <Button Name="button_New"  Grid.Row="1" Grid.Column="0" Margin="10,10,0,10" Content="New" Command="{Binding NewCommand}"/>
+                <Button Name="button_Load" Grid.Row="1" Grid.Column="1" Margin="10,10,0,10" Content="Open" Command="{Binding LoadCommand}" CommandParameter="From FileMenu"  />
+                <Button Name="button_Save" Grid.Row="1" Grid.Column="2" Margin="10,10,10,10" Content="Save" Command="{Binding SaveCommand}" CommandParameter="From FileMenu" />
             </Grid>
             <Rectangle Fill="Black" Width="auto" Height="5" Margin="5,0"/>
             <TextBlock Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="EDIT" />
-            <Button Height="40" Margin="10,10,10,0" Content="Add Defaults" Click="AddDefaults"/>
-            <Button Height="40" Margin="10,10,10,0" Content="Add Default V3DataCollection" Click="AddDefaultDataCollection"/>
-            <Button Height="40" Margin="10,10,10,0" Content="Add Default V3DataOnGrid" Click="AddDefaultDataOnGrid"/>
-            <Button Height="40" Margin="10,10,10,0" Content="Add Element from File" Click="AddElementFromFile"/>
-            <Button Height="40" Margin="10,10,10,0" Content="Remove" Command="ApplicationCommands.Delete" CommandParameter="From FileMenu" />
+            <Button Height="40" Margin="10,10,10,0" Content="Add Defaults" Command="{Binding AddDefaultsCommand}"/>
+            <Button Height="40" Margin="10,10,10,0" Content="Add Default V3DataCollection" Command="{Binding AddDefaultDataCollectionCommand}"/>
+            <Button Height="40" Margin="10,10,10,0" Content="Add Default V3DataOnGrid" Command="{Binding AddDefaultDataOnGridCommand}"/>
+            <Button Height="40" Margin="10,10,10,0" Content="Add Element from File" Command="{Binding AddElementFromFileCommand}"/>
+            <Button Height="40" Margin="10,10,10,0" Content="Remove" Command="{Binding RemoveCommand}" CommandParameter="From FileMenu" />
 
             <Rectangle Fill="Black" Width="auto" Height="5" Margin="5,10,5,0"/>
             <TextBlock Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="ADD DATAITEM" />
@@ -84,11 +74,11 @@
                     <ColumnDefinition Width="70px"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,10,10,10" Text="X coord:"/>
-                <TextBox Name="textblock_DataItemXCoord" Grid.Column="1" Margin="0,10" Background="White" Text="{Binding Path=X, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}" />
+                <TextBox Name="textblock_DataItemXCoord" Grid.Column="1" Margin="0,10" Background="White" Text="{Binding Path=X, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}" />
                 <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,10,10,10" Text="Y coord:"/>
-                <TextBox Name="textblock_DataItemYCoord" Grid.Column="3" Margin="0,10" Background="White" Text="{Binding Path=Y, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}"/>
+                <TextBox Name="textblock_DataItemYCoord" Grid.Column="3" Margin="0,10" Background="White" Text="{Binding Path=Y, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}" />
                 <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,10,10,10" Text="Value:"/>
-                <TextBox Name="textblock_DataItemValue" Grid.Column="5" Margin="0,10,10,10" Background="White" Text="{Binding Path=Value, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}"/>
+                <TextBox Name="textblock_DataItemValue" Grid.Column="5" Margin="0,10,10,10" Background="White" Text="{Binding Path=Value, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}"/>
             </Grid>
             <Button Height="40" Margin="10,0,10,0" Content="Add DataItem" Command="local:MainWindow.AddCommand"/>
         </StackPanel>
@@ -116,19 +106,19 @@
             <Rectangle Grid.Row="0" Grid.ColumnSpan="2" Fill="Black" Width="auto" Height="5" Margin="5,5,5,0"/>
             <TextBlock Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Main Collection" />
             <TextBlock Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Maximum Distance" />
-            <ListBox Name="listBox_Main" Grid.Row="2" Grid.Column="0" Margin="10,5,10,5" ItemsSource="{Binding Path=MainCollection}" SelectionChanged="InitDataItemCreator" />
+            <ListBox Name="listBox_Main" Grid.Row="2" Grid.Column="0" Margin="10,5,10,5" ItemsSource="{Binding Path=MainCollection}" SelectedItem="{Binding Path=MainSelectedItem}" SelectionChanged="InitDataItemCreator" />
             <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,10,10,5" Text="{Binding Path=MaxDist}" />
 
             <Rectangle Grid.Row="3" Grid.ColumnSpan="2" Fill="Black" Width="auto" Height="5" Margin="5,5,5,0"/>
             <TextBlock Grid.Row="4" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Data On Grid" />
             <TextBlock Grid.Row="4" Grid.Column="1"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Selected Item" />
-            <ListBox Name="listBox_DataOnGrid" Grid.Row="5" Grid.Column="0" Margin="10,5,10,10" ItemsSource="{Binding Source={StaticResource key_DataOnGridView}}" />
+            <ListBox Name="listBox_DataOnGrid" Grid.Row="5" Grid.Column="0" Margin="10,5,10,10" ItemsSource="{Binding DataOnGridView}" />
             <TextBlock Grid.Row="5" Grid.Column="1" Margin="0,10,10,5" Text="{Binding ElementName=listBox_DataOnGrid, Path=SelectedItem, Converter={StaticResource key_DataOnGridConverter}}" />
 
             <Rectangle Grid.Row="6" Grid.ColumnSpan="2" Fill="Black" Width="auto" Height="5" Margin="5,5,5,0"/>
             <TextBlock Grid.Row="7" Grid.Column="0"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Data Collections" />
             <TextBlock Grid.Row="7" Grid.Column="1"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Text="Selected Item" />
-            <ListBox Name="listBox_DataCollection" Grid.Row="8" Grid.Column="0" Margin="10,5,10,10" ItemsSource="{Binding Source={StaticResource key_DataCollectionView}}" />
+            <ListBox Name="listBox_DataCollection" Grid.Row="8" Grid.Column="0" Margin="10,5,10,10" ItemsSource="{Binding DataCollectionView}" />
             <ListBox Name="listBox_details" Grid.Row="8" Grid.Column="1" Margin="0,5,10,10" ItemsSource="{Binding ElementName=listBox_DataCollection, Path=SelectedItem}" ItemTemplate="{StaticResource key_DataItemTemplate}" />
         </Grid>
     </Grid>

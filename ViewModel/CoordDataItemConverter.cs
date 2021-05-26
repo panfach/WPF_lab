@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Windows.Data;
 using System.Globalization;
-using ViewModel;
 
-namespace WPF
+namespace ViewModel
 {
-    class CoordDataItemConverter: IValueConverter
+    public class CoordDataItemConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

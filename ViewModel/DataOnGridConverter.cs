@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Windows.Data;
 using System.Globalization;
-using ViewModel;
 
-namespace WPF
+namespace ViewModel
 {
-    class ValueDataItemConverter: IValueConverter
+    public class DataOnGridConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return DataConvertion.ValueDataItem(value);
+            return DataConvertion.DataOnGrid(value);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

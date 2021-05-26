@@ -1,6 +1,4 @@
-﻿using System.Collections.Specialized;
-using System.Windows;
-using System.Windows.Data;
+﻿using System.Windows;
 using System.ComponentModel;
 using Microsoft.Win32;
 using System.Windows.Input;
@@ -9,54 +7,22 @@ using ViewModel;
 
 namespace WPF
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public static RoutedCommand AddCommand = new RoutedCommand("Add", typeof(MainWindow));
 
-        MainViewModel viewModel = new MainViewModel();                                // old: V3MainCollection mainCollection = new V3MainCollection();
+        MainViewModel viewModel = new MainViewModel(new WPFUIServices());                                
         DataItemCreator dataItemCreator;
 
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-        public void OnLoaded(object sender, RoutedEventArgs e)
-        {
-            DataContext = viewModel;                                                   // old: DataContext = mainCollection;
-        }
-
-        public void New(object sender, RoutedEventArgs e)
-        {
-            New();
-        }
-
-        public void AddDefaults(object sender, RoutedEventArgs e)
-        {
-            viewModel.AddDefaults();                                                    // old: mainCollection.AddDefaults();
-        }
-
-        public void AddDefaultDataCollection(object sender, RoutedEventArgs e)
-        {
-            viewModel.AddRandomDataCollection();                                        // old: mainCollection.AddRandomDataCollection();
-        }
-
-        public void AddDefaultDataOnGrid(object sender, RoutedEventArgs e)
-        {
-            viewModel.AddRandomDataOnGrid();                                            // old: //mainCollection.AddRandomDataOnGrid();
-        }
-
-        public void AddElementFromFile(object sender, RoutedEventArgs e)
-        {
-            AddElementFromFile();
+            DataContext = viewModel;
         }
 
         public void OnClosing(object sender, CancelEventArgs e)
         {
-            if (!CheckChangedDataConditions()) e.Cancel = true;
+            e.Cancel = !viewModel.CheckChangedDataConditions();
         }
 
         public void InitDataItemCreator(object sender, RoutedEventArgs e)
@@ -65,32 +31,6 @@ namespace WPF
             grid_DataItemCreator.DataContext = dataItemCreator;
         }
 
-
-        public void CanSaveCommandHandler(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = viewModel.HasChanged;
-        }
-
-        public void SaveCommandHandler(object sender, ExecutedRoutedEventArgs e)
-        {
-            Save();
-        }
-
-        public void OpenCommandHandler(object sender, ExecutedRoutedEventArgs e)
-        {
-            if (!CheckChangedDataConditions()) return;
-            Load();
-        }
-
-        public void CanDeleteCommandHandler(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = (listBox_Main != null && listBox_Main.SelectedItem != null);
-        }
-
-        public void DeleteCommandHandler(object sender, ExecutedRoutedEventArgs e)
-        {
-            viewModel.Remove(listBox_Main.SelectedItem);
-        }
 
         public void CanAddCommandHandler(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -105,93 +45,68 @@ namespace WPF
         {
             dataItemCreator.AddDataItem();
         }
+    }
 
-
-        void AddElementFromFile()
+    public class WPFUIServices : IUIServices
+    {
+        public bool ChooseElementFromFile(ref string filename, string dirPath)
         {
             OpenFileDialog dlg = new OpenFileDialog();
-            string dirPath = System.IO.Path.Combine("..\\..\\..\\SaveFiles");
             dlg.InitialDirectory = System.IO.Path.GetFullPath(dirPath);
             dlg.RestoreDirectory = true;
             dlg.Filter = "Text file (*.txt)|*.txt";
-
-            if (dlg.ShowDialog() == false)
-                return;
-            if (viewModel.TryAddDataCollection(dlg.FileName))
-                return;
-
-            MessageBox.Show("Невозможно прочитать выбранный файл. Формат данных некорректен.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-
-        void New()
-        {
-            if (!CheckChangedDataConditions()) return;
-
-            viewModel.Clear();
-        }
-
-        bool Save()
-        {
-            SaveFileDialog dlg = new SaveFileDialog();
-            string dirPath = System.IO.Path.Combine("..\\..\\..\\SaveFiles");
-            dlg.InitialDirectory = System.IO.Path.GetFullPath(dirPath);
-            dlg.RestoreDirectory = true;
-            dlg.Filter = "Data list save (*.datalist)|*.datalist|Text file(*.txt) | *.txt";
-
-            if (dlg.ShowDialog() == false)
-                return false;
-            else if (viewModel.Save(dlg.FileName))
+            if (dlg.ShowDialog() == true)
+            {
+                filename = dlg.FileName;
                 return true;
-
-            MessageBox.Show("Что-то пошло не так", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
             return false;
         }
 
-        bool Load()
+        public bool ChooseLoadFile(ref string filename, string dirPath)
         {
             OpenFileDialog dlg = new OpenFileDialog();
-            string dirPath = System.IO.Path.Combine("..\\..\\..\\SaveFiles");
             dlg.InitialDirectory = System.IO.Path.GetFullPath(dirPath);
             dlg.RestoreDirectory = true;
-            dlg.Filter = "Data list save (*.datalist)|*.datalist|Text file (*.txt)|*.txt";
-
-            if (dlg.ShowDialog() == false)
-                return false;
-            else if (viewModel.Load(dlg.FileName))
+            dlg.Filter = "Data list save (*.datalist)|*.datalist";
+            if (dlg.ShowDialog() == true)
+            {
+                filename = dlg.FileName;
                 return true;
-
-            MessageBox.Show("Что-то пошло не так", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
             return false;
         }
 
-        void CollectionFilter(object source, FilterEventArgs args) 
+        public bool ChooseSaveFile(ref string filename, string dirPath)
         {
-            args.Accepted = viewModel.IsDataCollection(args.Item);
-        }
-
-        void OnGridFilter(object source, FilterEventArgs args)
-        {
-            args.Accepted = viewModel.IsDataOnGrid(args.Item);
-        }
-
-        bool CheckChangedDataConditions()
-        {
-            if (viewModel.HasChanged)
+            SaveFileDialog dlg = new SaveFileDialog();
+            dlg.InitialDirectory = System.IO.Path.GetFullPath(dirPath);
+            dlg.RestoreDirectory = true;
+            dlg.Filter = "Data list save (*.datalist)|*.datalist";
+            if (dlg.ShowDialog() == true)
             {
-                MessageBoxResult res = MessageBox.Show("Имеются несохраненные данные. Сохранить их?", "Несохраненные данные", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
-
-                switch (res)
-                {
-                    case MessageBoxResult.Yes:
-                        return Save();
-                    case MessageBoxResult.No:
-                        return true;
-                    case MessageBoxResult.Cancel:
-                        return false;
-                }
+                filename = dlg.FileName;
+                return true;
             }
+            return false;
+        }
 
-            return true;
+        public void ConfirmError(string text, string title)
+        {
+            MessageBox.Show(text, title, MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        public bool? ConfirmWarning(string text, string title)
+        {
+            switch (MessageBox.Show(text, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Warning))
+            {
+                case MessageBoxResult.Yes:
+                    return true;
+                case MessageBoxResult.No:
+                    return false;
+                default:
+                    return null;
+            }
         }
     }
 }
